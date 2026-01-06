@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 
 interface NavbarProps {
-  onNavigate: (view: 'home' | 'collection' | 'about' | 'contact') => void;
+  onNavigate: (view: 'home' | 'collection' | 'about' | 'contact' | 'admin') => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
   const [scrolled, setScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,11 +22,12 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
     { name: 'COLLECTION', action: () => onNavigate('collection') },
     { name: 'ABOUT', action: () => onNavigate('about') },
     { name: 'CONTACT', action: () => onNavigate('contact') },
+    { name: 'ADMIN', action: () => onNavigate('admin') },
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-[9999] transition-all duration-700 ${scrolled ? 'bg-black/95 backdrop-blur-xl py-4 border-b border-white/5 shadow-2xl' : 'bg-transparent py-8'}`}>
-      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative z-[10000]">
+    <nav className={`fixed top-0 left-0 w-full z-[20000] transition-all duration-700 ${scrolled ? 'bg-black/95 backdrop-blur-xl py-4 border-b border-white/5 shadow-2xl' : 'bg-transparent py-8'}`}>
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center relative z-[20001]">
         <button 
           onClick={() => onNavigate('home')} 
           className="font-futuristic text-2xl tracking-[0.3em] font-extralight group relative cursor-pointer"
@@ -45,9 +47,33 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate }) => {
           ))}
         </div>
 
-        <button className="md:hidden text-white relative z-[110]">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+        <button 
+          className="md:hidden text-white relative z-[110]"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
         </button>
+
+        {isMobileMenuOpen && (
+          <div className="md:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-xl border-b border-white/5">
+            <div className="flex flex-col space-y-4 py-6 px-6">
+              {navLinks.map((link) => (
+                <button 
+                  key={link.name} 
+                  onClick={() => {
+                    link.action();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="font-futuristic text-[11px] tracking-widest text-[#a3a3a3] hover:text-white transition-all duration-300 hover:tracking-[0.25em] cursor-pointer outline-none select-none text-left"
+                >
+                  {link.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

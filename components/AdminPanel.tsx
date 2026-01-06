@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { allProducts } from './FeatureGrid';
 import { Consultation } from '../types';
 
@@ -17,6 +17,30 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'dashboard' | 'collection' | 'consultations' | 'settings'>('dashboard');
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Close on ESC or click outside
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +75,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black flex animate-in fade-in duration-700">
+    <div ref={modalRef} className="fixed inset-0 z-[200] bg-black flex animate-in fade-in duration-700">
       {/* Sidebar */}
       <aside className="w-72 border-r border-white/5 flex flex-col p-8 h-full bg-[#050505]">
         <div className="mb-20">

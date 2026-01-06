@@ -60,7 +60,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleNavigation = (view: 'home' | 'collection' | 'about' | 'contact') => {
+  const handleNavigation = (view: 'home' | 'collection' | 'about' | 'contact' | 'admin') => {
     if (view === 'collection') {
       setCurrentView('collection');
       if (window.lenis) window.lenis.scrollTo(0);
@@ -75,10 +75,12 @@ const App: React.FC = () => {
     } else if (view === 'contact') {
       if (currentView !== 'home') {
         setCurrentView('home');
-        setTimeout(() => scrollToSection('#contact'), 100);
+        setTimeout(() => scrollToSection('#contact-info'), 100);
       } else {
-        scrollToSection('#contact');
+        scrollToSection('#contact-info');
       }
+    } else if (view === 'admin') {
+      setIsAdminOpen(true);
     } else {
       setCurrentView('home');
       if (window.lenis) window.lenis.scrollTo(0);

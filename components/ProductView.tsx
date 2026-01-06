@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Product } from '../types';
 import { visualizeCurtains } from '../services/geminiService';
 
@@ -15,6 +15,44 @@ const ProductView: React.FC<ProductViewProps> = ({ product, onClose }) => {
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Close on ESC or click outside
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
+
+  // Handle ESC key for fullscreen modal
+  useEffect(() => {
+    if (!fullscreenImage) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setFullscreenImage(null);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [fullscreenImage]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,7 +90,7 @@ const ProductView: React.FC<ProductViewProps> = ({ product, onClose }) => {
   };
 
   return (
-    <div data-lenis-prevent className="fixed inset-0 z-[110] bg-black overflow-y-auto animate-in fade-in duration-700">
+    <div ref={modalRef} data-lenis-prevent className="fixed inset-0 z-[110] bg-black overflow-y-auto animate-in fade-in duration-700">
       {/* Fullscreen Image Modal */}
       {fullscreenImage && (
         <div 
