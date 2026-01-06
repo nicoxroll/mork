@@ -1,22 +1,42 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Hero: React.FC = () => {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const opacity = Math.max(0, 1 - scrollY / 600);
+  const scale = Math.max(1, 1.1 - scrollY / 2000); // Starts at 1.1 to match original scale-110 feel, scales down
+
   return (
     <section id="hero" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
+      <div 
+        className="absolute inset-0 z-0 transition-transform duration-75 ease-out"
+        style={{ 
+          opacity, 
+          transform: `scale(${scale})` 
+        }}
+      >
         <img 
           src="/images/hero.jpg" 
           alt="MORK Modern Roller Curtains" 
-          className="w-full h-full object-cover opacity-50 scale-110"
+          className="w-full h-full object-cover opacity-50" // Removed scale-110 as it is handled by parent style now
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black"></div>
       </div>
 
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-        <h2 className="font-futuristic text-[10px] tracking-[0.6em] text-neutral-500 mb-10 animate-pulse uppercase">
-          Architecture of Light
-        </h2>
+      <div 
+        className="relative z-10 text-center px-6 max-w-5xl mx-auto"
+        style={{ opacity }}
+      >
         <h1 className="font-futuristic text-6xl md:text-[10rem] font-thin tracking-tighter leading-[0.85] mb-12">
           M<span className="opacity-40 italic">O</span>RK <br /> 
           <span className="text-4xl md:text-6xl tracking-[0.2em] font-light">ROLLER_TECH</span>

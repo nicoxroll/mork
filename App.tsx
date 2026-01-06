@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import About from './components/About';
 import ContactInfo from './components/ContactInfo';
 import AdminPanel from './components/AdminPanel';
+import VisionSection from './components/VisionSection';
 import { Product } from './types';
 
 const App: React.FC = () => {
@@ -148,20 +149,9 @@ const App: React.FC = () => {
           <About />
 
           <ContactInfo />
+
+          <VisionSection />
           
-          <section className="h-[60vh] relative flex items-center justify-center bg-black overflow-hidden group">
-            <img 
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2070" 
-              alt="Futuristic architectural view" 
-              className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-110 transition-transform duration-[3000ms]"
-            />
-            <div className="relative z-10 text-center max-w-4xl px-6">
-              <h2 className="text-3xl md:text-6xl font-extralight tracking-tight mb-12 italic opacity-60 uppercase leading-tight">
-                Diseño que trasciende la función para convertirse en <span className="text-white opacity-100 not-italic">arquitectura.</span>
-              </h2>
-              <div className="w-[1px] h-32 bg-gradient-to-b from-white to-transparent mx-auto opacity-20"></div>
-            </div>
-          </section>
         </main>
       ) : (
         <main className="pt-20 animate-in slide-in-from-bottom-10 duration-1000 min-h-screen">
