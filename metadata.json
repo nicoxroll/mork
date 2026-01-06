@@ -1,0 +1,7 @@
+{
+  "name": "MORK - Minimalist Window Tech",
+  "description": "A high-end, futuristic landing page for MORK Cortinas, featuring smart window treatments and an AI-powered interior design consultant.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

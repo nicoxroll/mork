@@ -1,0 +1,148 @@
+
+import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero';
+import FeatureGrid from './components/FeatureGrid';
+import FloatingAssistant from './components/FloatingAssistant';
+import ProductView from './components/ProductView';
+import Footer from './components/Footer';
+import About from './components/About';
+import ContactInfo from './components/ContactInfo';
+import { Product } from './types';
+
+const App: React.FC = () => {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [currentView, setCurrentView] = useState<'home' | 'collection'>('home');
+
+  const scrollToSection = (id: string) => {
+    const element = document.querySelector(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleNavigation = (view: 'home' | 'collection' | 'about') => {
+    if (view === 'collection') {
+      setCurrentView('collection');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (view === 'about') {
+      if (currentView !== 'home') {
+        setCurrentView('home');
+        // Esperamos a que el DOM se actualice antes de scrollear
+        setTimeout(() => scrollToSection('#about'), 100);
+      } else {
+        scrollToSection('#about');
+      }
+    } else {
+      setCurrentView('home');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
+      if (anchor) {
+        const href = anchor.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          e.preventDefault();
+          
+          if (href === '#') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+
+          if (currentView !== 'home' && (href === '#about' || href === '#contact-info' || href === '#showcase')) {
+            setCurrentView('home');
+            setTimeout(() => scrollToSection(href), 100);
+          } else {
+            scrollToSection(href);
+          }
+        }
+      }
+    };
+    document.addEventListener('click', handleAnchorClick);
+    return () => document.removeEventListener('click', handleAnchorClick);
+  }, [currentView]);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }, [selectedProduct]);
+
+  return (
+    <div className="animate-gradient min-h-screen selection:bg-white selection:text-black relative">
+      <Navbar onNavigate={handleNavigation} />
+      
+      {currentView === 'home' ? (
+        <main className="animate-in fade-in duration-1000">
+          <Hero />
+          
+          <div className="py-24 bg-black flex items-center justify-center border-y border-white/5 overflow-hidden">
+            <div className="flex whitespace-nowrap animate-marquee">
+               <span className="font-futuristic text-[8px] tracking-[2em] text-neutral-700 px-10">MORK_TECHNOLOGY - ARCHITECTURAL_CONTROL - PURE_MINIMALISM - NEURAL_LIGHTING_AI -</span>
+               <span className="font-futuristic text-[8px] tracking-[2em] text-neutral-700 px-10">MORK_TECHNOLOGY - ARCHITECTURAL_CONTROL - PURE_MINIMALISM - NEURAL_LIGHTING_AI -</span>
+            </div>
+          </div>
+
+          <FeatureGrid 
+            onSelectProduct={setSelectedProduct} 
+            showAll={false}
+            onShowAll={() => setCurrentView('collection')}
+          />
+
+          <About />
+
+          <ContactInfo />
+          
+          <section className="h-[60vh] relative flex items-center justify-center bg-black overflow-hidden group">
+            <img 
+              src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=2070" 
+              alt="Futuristic architectural view" 
+              className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-110 transition-transform duration-[3000ms]"
+            />
+            <div className="relative z-10 text-center max-w-4xl px-6">
+              <h2 className="text-3xl md:text-6xl font-extralight tracking-tight mb-12 italic opacity-60 uppercase leading-tight">
+                Diseño que trasciende la función para convertirse en <span className="text-white opacity-100 not-italic">arquitectura.</span>
+              </h2>
+              <div className="w-[1px] h-32 bg-gradient-to-b from-white to-transparent mx-auto opacity-20"></div>
+            </div>
+          </section>
+        </main>
+      ) : (
+        <main className="pt-20 animate-in slide-in-from-bottom-10 duration-1000 min-h-screen">
+          <FeatureGrid 
+            onSelectProduct={setSelectedProduct} 
+            showAll={true} 
+          />
+        </main>
+      )}
+
+      <Footer />
+      <FloatingAssistant />
+
+      {selectedProduct && (
+        <ProductView 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
+      )}
+      
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 50s linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default App;

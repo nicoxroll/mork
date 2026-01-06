@@ -1,0 +1,175 @@
+
+import React, { useState, useRef, useEffect } from 'react';
+import { getDesignAdvice } from '../services/geminiService';
+import { ChatMessage } from '../types';
+
+const FloatingAssistant: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: 'model', text: 'Bienvenido a MORK. Soy su asistente de diseño. ¿En qué espacio desea optimizar la luz hoy?' }
+  ]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll al recibir mensajes
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
+
+  // Cerrar al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isTyping) return;
+    const userMsg = input.trim();
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+    setIsTyping(true);
+
+    const history = messages.map(m => ({
+      role: m.role,
+      parts: [{ text: m.text }]
+    }));
+
+    const response = await getDesignAdvice(userMsg, history);
+    setIsTyping(false);
+    setMessages(prev => [...prev, { role: 'model', text: response || '' }]);
+  };
+
+  return (
+    <div ref={containerRef} className="fixed bottom-6 right-6 z-[150] flex flex-col items-end">
+      {/* Ventana de Chat con Transiciones Smooth */}
+      <div 
+        className={`mb-6 w-[90vw] max-w-[400px] h-[550px] bg-white/95 backdrop-blur-2xl text-black shadow-[0_30px_100px_rgba(0,0,0,0.5)] flex flex-col border border-black/5 origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+          isOpen 
+            ? 'opacity-100 scale-100 translate-y-0' 
+            : 'opacity-0 scale-90 translate-y-10 pointer-events-none'
+        }`}
+      >
+        <div className="p-6 border-b border-black/5 flex justify-between items-center bg-black text-white">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+            <span className="font-futuristic text-[9px] tracking-[0.4em]">MORK_NEURAL_CORE v1.2</span>
+          </div>
+          <button 
+            onClick={() => setIsOpen(false)} 
+            className="w-8 h-8 flex items-center justify-center opacity-40 hover:opacity-100 hover:rotate-90 transition-all duration-500"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+          {messages.map((m, i) => (
+            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-500`}>
+              <div className={`max-w-[85%] p-4 text-[13px] font-light leading-relaxed shadow-sm ${
+                m.role === 'user' 
+                  ? 'bg-black text-white rounded-l-2xl rounded-tr-2xl' 
+                  : 'bg-neutral-100 text-black rounded-r-2xl rounded-tl-2xl'
+              }`}>
+                {m.text}
+              </div>
+            </div>
+          ))}
+          {isTyping && (
+            <div className="flex justify-start">
+              <div className="bg-neutral-50 p-4 rounded-2xl rounded-tl-none border border-black/5">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-black/20 rounded-full animate-bounce"></div>
+                  <div className="w-1.5 h-1.5 bg-black/20 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-1.5 h-1.5 bg-black/20 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 bg-neutral-50/50 border-t border-black/5">
+          <div className="relative flex items-center">
+            <input 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Describa su visión arquitectónica..."
+              className="w-full text-xs font-light outline-none bg-white border border-black/10 rounded-full py-4 pl-6 pr-14 focus:border-black/30 shadow-inner transition-all"
+            />
+            <button 
+              onClick={handleSend} 
+              className="absolute right-2 w-10 h-10 bg-black text-white rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </button>
+          </div>
+          <p className="mt-4 text-[8px] text-center font-futuristic tracking-[0.2em] text-neutral-400 opacity-50 uppercase">
+            Powered by Gemini 3 Flash
+          </p>
+        </div>
+      </div>
+
+      {/* Botón Flotante */}
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className={`relative w-16 h-16 rounded-full flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-2xl overflow-hidden group ${
+          isOpen ? 'bg-white text-black scale-90 rotate-180' : 'bg-black text-white hover:scale-110'
+        }`}
+      >
+        <div className={`absolute inset-0 bg-white translate-y-full group-hover:translate-y-0 transition-transform duration-500 -z-10 ${isOpen ? 'hidden' : ''}`}></div>
+        
+        {isOpen ? (
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        ) : (
+          <div className="relative">
+            <span className="font-futuristic text-xl tracking-tighter group-hover:text-black transition-colors duration-500">M</span>
+            {/* Indicador de notificación */}
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></div>
+          </div>
+        )}
+      </button>
+
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(0,0,0,0.05);
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(0,0,0,0.1);
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default FloatingAssistant;
