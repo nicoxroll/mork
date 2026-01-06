@@ -58,10 +58,10 @@ const FloatingAssistant: React.FC = () => {
   };
 
   return (
-    <div ref={containerRef} className="fixed bottom-6 right-6 z-[150] flex flex-col items-end">
+    <div ref={containerRef} className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[150] flex flex-col items-end">
       {/* Ventana de Chat con Transiciones Smooth */}
       <div 
-        className={`mb-6 w-[90vw] max-w-[400px] h-[550px] bg-white/95 backdrop-blur-2xl text-black shadow-[0_30px_100px_rgba(0,0,0,0.5)] flex flex-col border border-black/5 origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+        className={`mb-4 md:mb-6 w-[calc(100vw-2rem)] md:w-[400px] h-[70vh] md:h-[550px] bg-white/95 backdrop-blur-2xl text-black shadow-[0_30px_100px_rgba(0,0,0,0.5)] flex flex-col border border-black/5 origin-bottom-right transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] rounded-2xl ${
           isOpen 
             ? 'opacity-100 scale-100 translate-y-0' 
             : 'opacity-0 scale-90 translate-y-10 pointer-events-none'

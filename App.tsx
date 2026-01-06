@@ -124,7 +124,7 @@ const App: React.FC = () => {
 
   return (
     <div className="animate-gradient min-h-screen selection:bg-white selection:text-black relative">
-      <Navbar onNavigate={handleNavigation} />
+      {!selectedProduct && <Navbar onNavigate={handleNavigation} />}
       
       {currentView === 'home' ? (
         <main className="animate-in fade-in duration-1000">
