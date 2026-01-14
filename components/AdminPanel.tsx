@@ -86,13 +86,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   return (
     <div ref={modalRef} className="fixed inset-0 z-[200] bg-black flex animate-in fade-in duration-700">
       {/* Sidebar */}
-      <aside className="w-72 border-r border-white/5 flex flex-col p-8 h-full bg-[#050505]">
-        <div className="mb-20">
-          <h2 className="font-futuristic text-xl tracking-[0.3em]">MORK_OS</h2>
-          <p className="text-[8px] font-futuristic tracking-[0.4em] text-neutral-600 mt-2">TERMINAL_ADMIN_v4.0</p>
+      <aside className={`${isSidebarCollapsed ? 'w-20' : 'w-72'} border-r border-white/5 flex flex-col transition-all duration-300 ease-in-out bg-[#050505] shrink-0 overflow-hidden`}>
+        <div className={`p-8 flex items-start ${isSidebarCollapsed ? 'px-0 justify-center' : 'justify-between'}`}>
+          {!isSidebarCollapsed && (
+            <div className="mb-0">
+              <h2 className="font-futuristic text-xl tracking-[0.3em]">MORK_OS</h2>
+              <p className="text-[8px] font-futuristic tracking-[0.4em] text-neutral-600 mt-2">TERMINAL_v4</p>
+            </div>
+          )}
+          <button 
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+            className={`text-neutral-500 hover:text-white transition-colors p-1 ${isSidebarCollapsed ? '' : 'mt-1'}`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={isSidebarCollapsed ? "M13 5l7 7-7 7M5 5l7 7-7 7" : "M10 19l-7-7 7-7"} />
+            </svg>
+          </button>
         </div>
         
-        <nav className="flex-1 space-y-6">
+        <nav className="flex-1 space-y-2 mt-8">
           {[
             { id: 'dashboard', label: 'DASHBOARD', icon: 'M4 6h16M4 12h16M4 18h16' },
             { id: 'collection', label: 'COLLECTION', icon: 'M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z' },
@@ -102,25 +114,30 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`w-full text-left font-futuristic text-[9px] tracking-[0.4em] flex items-center gap-4 transition-all py-2 ${activeTab === tab.id ? 'text-white translate-x-2' : 'text-neutral-600 hover:text-neutral-300'}`}
+              className={`w-full font-futuristic text-[9px] tracking-[0.4em] flex items-center transition-all py-3 relative group ${isSidebarCollapsed ? 'justify-center px-0' : 'justify-start px-8 gap-4'} ${activeTab === tab.id ? 'text-white bg-white/5' : 'text-neutral-600 hover:text-neutral-300 hover:bg-white/5'}`}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d={tab.icon} /></svg>
-              {tab.label}
+              <svg className="w-4 h-4 min-w-[1rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d={tab.icon} /></svg>
+              {!isSidebarCollapsed && <span className="truncate">{tab.label}</span>}
+              {isSidebarCollapsed && (
+                 <div className="absolute left-full ml-2 bg-neutral-900 text-white text-[9px] py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none border border-white/10">
+                    {tab.label}
+                 </div>
+              )}
             </button>
           ))}
         </nav>
 
         <button 
           onClick={onClose}
-          className="mt-auto font-futuristic text-[9px] tracking-[0.4em] text-neutral-600 hover:text-white transition-colors flex items-center gap-4 py-2"
+          className={`mt-auto font-futuristic text-[9px] tracking-[0.4em] text-neutral-600 hover:text-white transition-colors flex items-center py-6 hover:bg-white/5 ${isSidebarCollapsed ? 'justify-center' : 'px-8 gap-4'}`}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-          LOGOUT
+          <svg className="w-4 h-4 min-w-[1rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+          {!isSidebarCollapsed && <span>LOGOUT</span>}
         </button>
       </aside>
 
       {/* Main Content */}
-      <main data-lenis-prevent className="flex-1 p-20 overflow-y-auto bg-[#080808]">
+      <main data-lenis-prevent className="flex-1 p-6 md:p-20 overflow-y-auto bg-[#080808]">
         <div className="max-w-6xl">
           {activeTab === 'dashboard' && (
             <div className="space-y-16 animate-in slide-in-from-bottom-4 duration-700">
